@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Speech Recognition</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; }
+    </style>
+</head>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<body>
+
+    <h1>JavaScript Speech Recognition</h1>
+    <button id="start-btn">Start Listening</button>
+    <div id="output" class="border min-h-[50px] mt-5 p-2.5 border-[#ccc] bg-gray-300 bg-linear-to-b from-gray-300 to-gray-200 rounded">Your speech will appear here...</div>
+
+    <script>
+        // 1. Handle browser compatibility prefixes
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert("Your browser does not support the Web Speech API. Try Google Chrome.");
+        } else {
+            // 2. Initialize the speech recognition object
+            const recognition = new SpeechRecognition();
+            
+            // Configure settings
+            recognition.lang = 'en-US'; // Set language
+            recognition.interimResults = false; // Only return final results
+            recognition.maxAlternatives = 1; // Return the top match
+
+            const startBtn = document.getElementById('start-btn');
+            const outputDiv = document.getElementById('output');
+
+            // 3. Event: Triggered when the user clicks the button
+            startBtn.addEventListener('click', () => {
+                recognition.start();
+                startBtn.textContent = "Listening...";
+                outputDiv.textContent = "Speak into your microphone...";
+            });
+
+            // 4. Event: Triggered when speech is successfully recognized
+            recognition.onresult = (event) => {
+                // Extract the transcript from the results nested object
+                const transcript = event.results[0][0].transcript;
+                outputDiv.textContent = `You said: "${transcript}"`;
+            };
+
+            // 5. Event: Triggered when the microphone stops listening
+            recognition.onend = () => {
+                startBtn.textContent = "Start Listening";
+            };
+
+            // 6. Event: Handle any errors (like blocked microphone permissions)
+            recognition.onerror = (event) => {
+                outputDiv.textContent = `Error occurred: ${event.error}`;
+                startBtn.textContent = "Start Listening";
+            };
+        }
+    </script>
+</body>
+</html>
