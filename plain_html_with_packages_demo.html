@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tabulator Table Demo</title>
+
+    <!-- Tabulator's npm package, loaded from a CDN for this standalone demo. -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/tabulator-tables@6.5.0/dist/css/tabulator.min.css"
+    />
+
+    <style>
+      body {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: system-ui, sans-serif;
+        background: #f7f7f8;
+        color: #202124;
+      }
+
+      h1 {
+        margin-bottom: 8px;
+      }
+
+      p {
+        margin-top: 0;
+        color: #60646c;
+      }
+
+      #people-table {
+        margin-top: 24px;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Random People Data</h1>
+    <p>Click a column heading to sort the table.</p>
+
+    <div id="people-table"></div>
+
+    <script src="https://unpkg.com/tabulator-tables@6.5.0/dist/js/tabulator.min.js"></script>
+
+    <script type="module">
+      import {
+        uniqueNamesGenerator,
+        NumberDictionary,
+        names,
+      } from "https://esm.sh/unique-names-generator@4.7.1";
+      //   import confetti from "https://esm.sh/canvas-confetti@1.6.0"
+      //   confetti();
+
+      function generateName() {
+        return uniqueNamesGenerator({
+          dictionaries: [names, names],
+          separator: " ",
+        });
+      }
+
+      const tableData = [];
+      const randomDataArray = Array.from({ length: 100 }, () => generateName());
+      for (const [index, name] of randomDataArray.entries()) {
+        tableData.push({
+          id: index + 1,
+          name,
+          role: uniqueNamesGenerator({
+            dictionaries: [["Engineer", "Doctor", "Teacher", "Religious"]],
+          }),
+          age: NumberDictionary.generate({
+            min: 22,
+            max: 62,
+          }),
+          active: uniqueNamesGenerator({ dictionaries: [[true, false]] }),
+        });
+      }
+
+      const table = new Tabulator("#people-table", {
+        data: tableData,
+        layout: "fitColumns",
+        pagination: true,
+        paginationSize: 10,
+        columns: [
+          { title: "ID", field: "id", width: 70, sorter: "number" },
+          { title: "Name", field: "name" },
+          { title: "Role", field: "role" },
+          { title: "Age", field: "age", sorter: "number", hozAlign: "right" },
+          {
+            title: "Active",
+            field: "active",
+            formatter: "tickCross",
+            hozAlign: "center",
+          },
+        ],
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Driver JS Demo</title>
+
+    <!-- Tabulator's npm css package, loaded from a CDN for this standalone demo. -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/driver.js@1.8.0/dist/driver.css"
+    />
+
+    <style>
+      body {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: system-ui, sans-serif;
+        background: #f7f7f8;
+        color: #202124;
+      }
+    </style>
+  </head>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- the global object way -->
+  <script src="https://unpkg.com/driver.js@1.8.0/dist/driver.js.iife.js"></script>
+
+  <body>
+    <h1 class="text-4xl font-semibold">Driver JS Testing</h1>
+
+    <script type="module">
+      //  the ESM way
+      // import { driver} from "https://esm.sh/driver.js@1.8.0";
+
+      // the global way (with the script up above...)
+      const driver = window.driver.js.driver;
+
+      const driverObj = driver({
+        showProgress: true,
+        steps: [
+          {
+            element: "#first-stop",
+            popover: {
+              title: "Import the Library",
+              description:
+                "It works the same in vanilla JavaScript as well as frameworks.",
+              side: "bottom",
+              align: "start",
+            },
+          },
+          {
+            element: "#second-stop",
+            popover: {
+              title: "Importing CSS",
+              description:
+                "Import the CSS which gives you the default styling for popover and overlay.",
+              side: "bottom",
+              align: "start",
+            },
+          },
+          {
+            element: "#third-stop",
+            popover: {
+              title: "Create Driver",
+              description:
+                "Simply call the driver function to create a driver.js instance",
+              side: "left",
+              align: "start",
+            },
+          },
+          {
+            popover: {
+              title: "Happy Coding",
+              description:
+                "And that is all, go ahead and start adding tours to your applications.",
+            },
+          },
+        ],
+      });
+
+      document
+        .querySelector("#start-tour-button")
+        .addEventListener("click", () => {
+          driverObj.drive();
+        });
+    </script>
+
+    <div class="flex flex-col items-center space-y-4">
+      <button id="start-tour-button">Start Here!</button>
+      <div class="w-60 h-30 border rounded-lg" id="first-stop">First stop!</div>
+      <div class="w-60 h-30 border rounded-lg" id="second-stop">
+        Second stop!
+      </div>
+      <div class="w-60 h-30 border rounded-lg" id="third-stop">Third stop!</div>
+    </div>
+  </body>
+</html>

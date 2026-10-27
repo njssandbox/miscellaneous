@@ -1,0 +1,75 @@
+<!-- <!doctype html>
+<html>
+  <body>
+    <button id="decrement">−</button>
+    <span id="count"></span>
+    <button id="increment">+</button>
+
+    <script>
+      const state = {
+        count: 0,
+      };
+
+      function setState(updates) {
+        Object.assign(state, updates);
+        render();
+      }
+
+      function render() {
+        document.querySelector("#count").textContent = state.count;
+      }
+
+      document.querySelector("#increment").addEventListener("click", () => {
+        setState({ count: state.count + 1 });
+      });
+
+      document.querySelector("#decrement").addEventListener("click", () => {
+        setState({ count: state.count - 1 });
+      });
+
+      render();
+    </script>
+  </body>
+</html> -->
+<!doctype html>
+<html>
+  <body>
+    <button id="decrement">−</button>
+    <span id="count"></span>
+    <button id="increment">+</button>
+
+    <script>
+      /**
+       * @typedef {Object} AppState
+       * @property {number} count
+       */
+
+      /** @type {AppState} */
+      const state = {
+        count: 0,
+      };
+
+      /**
+       * @param {Partial<AppState>} updates
+       */
+      function setState(updates) {
+        Object.assign(state, updates);
+        render();
+      }
+
+      function render() {
+        document.querySelector("#count").textContent = String(state.count);
+      }
+
+      document.querySelector("#increment").addEventListener("click", () => {
+        setState({ count: state.count + 1 });
+      });
+
+      document.querySelector("#decrement").addEventListener("click", () => {
+        setState({ count: state.count - 1 });
+      });
+
+      render();
+    </script>
+  </body>
+</html>
