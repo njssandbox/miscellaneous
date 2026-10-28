@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTN·Forge — drag-out button builder</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='3' y='9' width='26' height='14' rx='5' fill='%232f6df6'/><rect x='3' y='9' width='26' height='7' rx='3.5' fill='%23ffffff' opacity='.25'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#edf0f5; --panel:#ffffff; --line:#e0e5ee; --ink:#171b23; --mut:#6b7484;
+    --accent:#2f6df6; --accent-soft:rgba(47,109,246,.14);
+    --code-bg:#14161c; --code-head:#191c24; --code-line:#262b36;
+    --disp:'Space Grotesk',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--disp); color:var(--ink); overflow:hidden;
+    display:flex; flex-direction:column;
+    background:
+      radial-gradient(900px 520px at 88% -10%, rgba(47,109,246,.09), transparent 60%),
+      radial-gradient(760px 520px at -8% 112%, rgba(15,23,42,.07), transparent 60%),
+      var(--bg);
+  }
+  ::selection{background:var(--accent);color:#fff}
+  button{font-family:inherit}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    height:54px; flex-shrink:0; display:flex; align-items:center; gap:16px;
+    padding:0 18px; background:var(--panel); border-bottom:1px solid var(--line);
+    animation:dropIn .45s ease both; z-index:5;
+  }
+  @keyframes dropIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand-mark{
+    width:22px;height:14px;border-radius:5px;
+    background:linear-gradient(#4b82ff,#2f6df6);
+    box-shadow:inset 0 -4px 0 rgba(0,0,0,.18), 0 1px 3px rgba(47,109,246,.4);
+  }
+  .brand h1{font-size:15px;font-weight:700;letter-spacing:.05em}
+  .brand h1 em{font-style:normal;color:var(--accent)}
+  .brand-sub{font:500 10.5px var(--mono);color:var(--mut);letter-spacing:.08em;text-transform:uppercase;
+    padding-left:14px;border-left:1px solid var(--line)}
+  .topbar-actions{margin-left:auto;display:flex;gap:8px}
+  .ghost-btn{
+    display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:9px;
+    border:1px solid var(--line);background:#fff;color:var(--ink);
+    font-size:12.5px;font-weight:600;cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s;
+  }
+  .ghost-btn:hover{transform:translateY(-1px);border-color:#c4cddd;box-shadow:0 4px 12px rgba(23,27,35,.08)}
+  .ghost-btn:active{transform:translateY(0)}
+  .ghost-btn svg{width:14px;height:14px;stroke:var(--mut)}
+  .ghost-btn:hover svg{stroke:var(--accent)}
+
+  /* ---------- layout ---------- */
+  .workspace{flex:1;display:grid;grid-template-columns:330px 1fr;min-height:0}
+
+  /* ---------- inspector (left) ---------- */
+  .inspector{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+  .search-wrap{position:relative;padding:14px 14px 12px;border-bottom:1px solid var(--line);flex-shrink:0}
+  .search-wrap svg{position:absolute;left:25px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--mut);pointer-events:none}
+  #searchInput{
+    width:100%;padding:9px 40px 9px 34px;border-radius:10px;border:1px solid var(--line);
+    background:#f4f6fa;font:500 13px var(--disp);color:var(--ink);
+    transition:border-color .15s, background .15s, box-shadow .15s;
+  }
+  #searchInput:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-soft)}
+  #searchInput::placeholder{color:#9aa3b5}
+  .kbd-hint{position:absolute;right:23px;top:50%;transform:translateY(-50%);
+    font:600 10px var(--mono);color:var(--mut);background:#eef1f7;border:1px solid var(--line);
+    border-radius:5px;padding:2px 6px;pointer-events:none}
+  .filter-count{position:absolute;right:23px;top:50%;transform:translateY(-50%);
+    font:600 10px var(--mono);color:var(--accent);display:none}
+
+  .groups{flex:1;overflow-y:auto;min-height:0}
+  .group{padding:14px 16px 16px;border-bottom:1px solid var(--line);animation:rise .4s ease both}
+  .group.off,.ctl.off{display:none}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .group h3{
+    display:flex;align-items:center;gap:8px;margin-bottom:12px;
+    font:600 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mut);
+  }
+  .group h3::before{content:'';width:3px;height:12px;border-radius:2px;background:var(--accent)}
+  .ctl{margin-bottom:13px}
+  .ctl:last-child{margin-bottom:2px}
+  .ctl-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+  .ctl-head label{font-size:12.5px;font-weight:600}
+  .ctl-val{
+    font:500 11px var(--mono);color:var(--mut);background:#f4f6fa;
+    padding:1px 7px;border-radius:6px;max-width:130px;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;
+  }
+  .ctl-body{display:flex;align-items:center}
+
+  .empty{margin:22px 16px;padding:26px 16px;border:1.5px dashed #c9d2e0;border-radius:12px;
+    text-align:center;font-size:12.5px;color:var(--mut)}
+  .empty b{display:block;font-size:13px;color:var(--ink);margin-bottom:4px}
+  .empty button{margin-top:12px}
+
+  /* inputs */
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;
+    background:linear-gradient(to right,var(--accent) var(--fill,50%),#e3e8f0 var(--fill,50%))}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;margin-top:-5.5px;
+    border-radius:50%;background:#fff;border:2.5px solid var(--accent);
+    box-shadow:0 1px 4px rgba(23,27,35,.25);transition:transform .15s ease}
+  input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.18)}
+  input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:#e3e8f0}
+  input[type=range]::-moz-range-progress{height:4px;border-radius:4px;background:var(--accent)}
+  input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;
+    border:2.5px solid var(--accent);box-shadow:0 1px 4px rgba(23,27,35,.25)}
+
+  input[type=color]{width:40px;height:26px;padding:2px;border:1px solid var(--line);border-radius:8px;
+    background:#fff;cursor:pointer;transition:transform .15s}
+  input[type=color]:hover{transform:scale(1.06)}
+  input[type=color]::-webkit-color-swatch-wrapper{padding:1px}
+  input[type=color]::-webkit-color-swatch{border:none;border-radius:5px}
+  input[type=color]::-moz-color-swatch{border:none;border-radius:5px}
+
+  select,input[type=text]{
+    width:100%;padding:7px 10px;border-radius:9px;border:1px solid var(--line);
+    background:#f4f6fa;font:500 12px var(--mono);color:var(--ink);cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  input[type=text]{cursor:text;font-family:var(--disp);font-size:13px}
+  select:hover,input[type=text]:hover{border-color:#c4cddd}
+  select:focus,input[type=text]:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px var(--accent-soft)}
+
+  .tgl{display:flex;align-items:center;cursor:pointer}
+  .tgl input{position:absolute;opacity:0;pointer-events:none}
+  .track{width:34px;height:19px;border-radius:999px;background:#d6dce8;position:relative;transition:background .2s}
+  .track::after{content:'';position:absolute;top:3px;left:3px;width:13px;height:13px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s ease}
+  .tgl input:checked + .track{background:var(--accent)}
+  .tgl input:checked + .track::after{left:18px}
+  .tgl:hover .track::after{box-shadow:0 1px 5px rgba(0,0,0,.4)}
+
+  /* ---------- canvas (right) ---------- */
+  .canvas{display:flex;flex-direction:column;gap:14px;padding:18px;min-width:0;min-height:0}
+  .canvas-frame{
+    flex:1;min-height:240px;position:relative;border:1px solid var(--line);border-radius:14px;
+    background-color:#fafbfd;overflow:hidden;animation:rise .55s .08s ease both;
+    box-shadow:0 1px 3px rgba(23,27,35,.04);
+  }
+  .canvas-frame::before{content:'';position:absolute;inset:0;
+    background-image:radial-gradient(circle,#cdd6e4 1px,transparent 1.6px);
+    background-size:22px 22px;animation:pan 90s linear infinite;pointer-events:none}
+  @keyframes pan{to{background-position:220px 110px}}
+  .tick{position:absolute;width:14px;height:14px;opacity:.4;pointer-events:none}
+  .tick.tl{top:10px;left:10px;border-top:2px solid var(--accent);border-left:2px solid var(--accent)}
+  .tick.tr{top:10px;right:10px;border-top:2px solid var(--accent);border-right:2px solid var(--accent)}
+  .tick.bl{bottom:10px;left:10px;border-bottom:2px solid var(--accent);border-left:2px solid var(--accent)}
+  .tick.br{bottom:10px;right:10px;border-bottom:2px solid var(--accent);border-right:2px solid var(--accent)}
+  .frame-label{position:absolute;top:14px;left:36px;font:600 10px var(--mono);
+    letter-spacing:.16em;color:var(--mut);pointer-events:none}
+  .stage{position:absolute;inset:0;display:grid;place-items:center;z-index:1}
+  .stage-inner{display:flex;flex-direction:column;align-items:center;gap:30px;padding:20px}
+
+  .preview-btn{
+    position:relative;line-height:1.2;white-space:nowrap;cursor:grab;
+    user-select:none;-webkit-user-select:none;
+    transition:transform .18s ease, box-shadow .18s ease, background .18s, color .18s;
+  }
+  .preview-btn:active{cursor:grabbing}
+  .preview-btn::after{
+    content:'⠿  drag me';position:absolute;left:0;top:-30px;
+    font:600 10px var(--mono);letter-spacing:.08em;background:var(--ink);color:#fff;
+    padding:4px 9px;border-radius:999px;opacity:0;transform:translateY(5px);
+    transition:opacity .2s ease, transform .2s ease;pointer-events:none;
+  }
+  .preview-btn:hover::after{opacity:1;transform:none}
+  .preview-btn.pop{animation:pop .45s ease}
+  @keyframes pop{40%{transform:scale(.93)}70%{transform:scale(1.03)}}
+  body.dragging .preview-btn{opacity:.4;outline:2px dashed var(--accent);outline-offset:10px;cursor:grabbing}
+
+  .drag-hint{font:500 11px/1.7 var(--mono);color:var(--mut);letter-spacing:.02em;text-align:center;
+    display:flex;align-items:center;gap:9px}
+  .drag-hint svg{width:15px;height:15px;stroke:var(--mut);flex-shrink:0}
+
+  /* ---------- code panel ---------- */
+  .code-panel{height:212px;flex-shrink:0;display:flex;flex-direction:column;
+    background:var(--code-bg);border-radius:12px;overflow:hidden;
+    box-shadow:0 10px 30px rgba(15,23,42,.22);animation:rise .55s .16s ease both}
+  .code-head{height:40px;flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 12px;
+    background:var(--code-head);border-bottom:1px solid var(--code-line)}
+  .file-tab{display:inline-flex;align-items:center;gap:8px;font:500 12px var(--mono);color:#98a2b6;
+    cursor:grab;padding:4px 9px;border-radius:7px;border:1px dashed transparent;
+    transition:color .15s, border-color .15s, background .15s}
+  .file-tab:hover{color:#e6ebf4;border-color:#39415366;background:rgba(255,255,255,.04)}
+  .file-tab .grip{font-size:11px;color:#5a6478}
+  .code-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 8px rgba(47,109,246,.8)}
+  .code-meta{margin-left:auto;font:500 10.5px var(--mono);color:#5a6478}
+  .copy-btn{
+    display:inline-flex;align-items:center;gap:6px;border:none;border-radius:8px;
+    background:var(--accent);color:#fff;font:600 11px var(--mono);letter-spacing:.04em;
+    padding:7px 13px;cursor:pointer;transition:transform .15s, box-shadow .15s, background .15s;
+  }
+  .copy-btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(47,109,246,.45)}
+  .copy-btn:active{transform:translateY(0)}
+  .copy-btn.done{background:#16a34a}
+  .copy-btn svg{width:13px;height:13px;stroke:currentColor}
+  pre{flex:1;margin:0;padding:14px 16px;overflow:auto;
+    font:400 12.5px/1.8 var(--mono);color:#d6dce8;tab-size:2}
+  pre.flash{animation:codeflash .55s ease}
+  @keyframes codeflash{from{background:rgba(47,109,246,.16)}to{background:transparent}}
+  .s{color:#e5c07b}.k{color:#61afef}.v{color:#98c379}
+  .tag{color:#e06c75}.t{color:#8b95a8}.a{color:#d19a66}.c{color:#d6dce8}
+
+  /* scrollbars */
+  .groups::-webkit-scrollbar,pre::-webkit-scrollbar{width:9px;height:9px}
+  .groups::-webkit-scrollbar-thumb{background:#cfd6e2;border-radius:9px;border:2px solid var(--panel)}
+  pre::-webkit-scrollbar-thumb{background:#394153;border-radius:9px;border:2px solid var(--code-bg)}
+  .groups::-webkit-scrollbar-track,pre::-webkit-scrollbar-track{background:transparent}
+
+  /* toast */
+  #toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,10px);
+    background:var(--ink);color:#fff;font:500 12px var(--mono);padding:9px 17px;border-radius:10px;
+    opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:50;
+    box-shadow:0 8px 24px rgba(15,23,42,.3)}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:880px){
+    body{overflow:auto}
+    .workspace{display:flex;flex-direction:column}
+    .canvas{order:1;min-height:430px}
+    .inspector{order:2;border-right:none;border-top:1px solid var(--line);max-height:none}
+    .groups{max-height:46vh}
+    .brand-sub{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark"></span>
+    <h1>BTN<em>·</em>FORGE</h1>
+    <span class="brand-sub">drag-out button builder</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="ghost-btn" id="shuffleBtn" title="Randomize the button">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+      Shuffle
+    </button>
+    <button class="ghost-btn" id="resetBtn" title="Restore defaults">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      Reset
+    </button>
+  </div>
+</header>
+
+<main class="workspace">
+  <!-- LEFT: properties inspector -->
+  <aside class="inspector">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+      <input id="searchInput" type="text" placeholder="Filter properties…" autocomplete="off">
+      <span class="kbd-hint" id="kbdHint">/</span>
+      <span class="filter-count" id="filterCount"></span>
+    </div>
+    <div class="groups" id="groups"></div>
+    <div class="empty" id="empty" style="display:none">
+      <b>No matching properties</b>
+      Nothing in the list matches your filter.<br>
+      <button class="ghost-btn" id="clearFilter" style="margin-top:14px">Clear filter</button>
+    </div>
+  </aside>
+
+  <!-- RIGHT: preview + code -->
+  <section class="canvas">
+    <div class="canvas-frame">
+      <span class="tick tl"></span><span class="tick tr"></span>
+      <span class="tick bl"></span><span class="tick br"></span>
+      <span class="frame-label">PREVIEW</span>
+      <div class="stage">
+        <div class="stage-inner">
+          <button class="preview-btn" id="previewBtn" draggable="true">Click me</button>
+          <p class="drag-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l-3 3-3-3"/><path d="M19 9l3 3-3 3"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+            drag the button (or the file tab) into your editor — the code rides along
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-panel">
+      <div class="code-head">
+        <span class="file-tab" id="fileTab" draggable="true" title="Drag this file into your editor">
+          <span class="grip">⠿</span> button.css
+        </span>
+        <span class="code-dot"></span>
+        <span class="code-meta" id="codeLines"></span>
+        <button class="copy-btn" id="copyBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyLabel">Copy code</span>
+        </button>
+      </div>
+      <pre id="codeBody"></pre>
+    </div>
+  </section>
+</main>
+
+<div id="toast"></div>
+<style id="dyn"></style>
+
+<script>
+(function(){
+  'use strict';
+  const $ = s => document.querySelector(s);
+  const mk = t => document.createElement(t);
+
+  /* ============ state ============ */
+  const PRESETS = {
+    soft:     {shadowX:0,  shadowY:2,  shadowBlur:6,  shadowColor:'#0f172a', shadowOpacity:25},
+    card:     {shadowX:0,  shadowY:4,  shadowBlur:14, shadowColor:'#0f172a', shadowOpacity:30},
+    elevated: {shadowX:0,  shadowY:12, shadowBlur:32, shadowColor:'#0f172a', shadowOpacity:35},
+    neon:     {shadowX:0,  shadowY:0,  shadowBlur:20, shadowColor:'#2f6df6', shadowOpacity:55},
+  };
+  const DEFAULTS = {
+    label:'Click me', fontSize:15, fontWeight:600, letterSpacing:0,
+    padX:22, padY:12,
+    bg:'#2f6df6', color:'#ffffff',
+    borderWidth:0, borderStyle:'solid', borderColor:'#1d4ed8', radius:10,
+    shadowOn:true, shadowPreset:'card', shadowX:0, shadowY:4, shadowBlur:14,
+    shadowColor:'#0f172a', shadowOpacity:30,
+    hoverLift:2
+  };
+  let state = Object.assign({}, DEFAULTS);
+  let snippetPlain = '';
+
+  /* ============ property definitions ============ */
+  const GROUPS = [
+    { title:'Text', items:[
+      {id:'label',        label:'Label',          type:'text',   keys:'label text content name words'},
+      {id:'fontSize',     label:'Font size',      type:'range',  min:10, max:32, unit:'px', keys:'font size text height big small'},
+      {id:'fontWeight',   label:'Font weight',    type:'select', options:[['400','400 — regular'],['500','500 — medium'],['600','600 — semibold'],['700','700 — bold'],['800','800 — extrabold']], keys:'font weight bold light thin medium strong'},
+      {id:'letterSpacing',label:'Letter spacing', type:'range',  min:-1, max:6, step:.5, unit:'px', keys:'letter spacing tracking tight wide typography'},
+    ]},
+    { title:'Padding', items:[
+      {id:'padX', label:'Horizontal', type:'range', min:0, max:48, unit:'px', keys:'padding horizontal width space left right x'},
+      {id:'padY', label:'Vertical',   type:'range', min:0, max:40, unit:'px', keys:'padding vertical height space top bottom y'},
+    ]},
+    { title:'Colors', items:[
+      {id:'bg',          label:'Background', type:'color', keys:'background color bg fill paint'},
+      {id:'color',       label:'Text',       type:'color', keys:'text color font color fg ink'},
+      {id:'borderColor', label:'Border',     type:'color', keys:'border color stroke edge outline'},
+    ]},
+    { title:'Border & Shape', items:[
+      {id:'borderWidth', label:'Width',       type:'range',  min:0, max:12, unit:'px', keys:'border width thickness stroke line'},
+      {id:'borderStyle', label:'Style',       type:'select', options:[['solid','Solid'],['dashed','Dashed'],['dotted','Dotted'],['double','Double'],['none','None']], keys:'border style solid dashed dotted double none'},
+      {id:'radius',      label:'Roundedness', type:'range',  min:0, max:40, unit:'px', keys:'radius rounded round corner corners border-radius squircle pill'},
+    ]},
+    { title:'Shadow', items:[
+      {id:'shadowOn',      label:'Enable',    type:'toggle', keys:'shadow enable on off toggle drop'},
+      {id:'shadowPreset',  label:'Preset',    type:'select', options:[['soft','Soft'],['card','Card'],['elevated','Elevated'],['neon','Neon'],['custom','Custom']], keys:'shadow preset style soft card elevated neon'},
+      {id:'shadowX',       label:'Offset X',  type:'range',  min:-20, max:20, unit:'px', keys:'shadow offset x horizontal'},
+      {id:'shadowY',       label:'Offset Y',  type:'range',  min:0,   max:40, unit:'px', keys:'shadow offset y vertical'},
+      {id:'shadowBlur',    label:'Blur',      type:'range',  min:0,   max:60, unit:'px', keys:'shadow blur softness spread haze'},
+      {id:'shadowColor',   label:'Color',     type:'color',  keys:'shadow color tint hue'},
+      {id:'shadowOpacity', label:'Opacity',   type:'range',  min:0,   max:100,unit:'%',  keys:'shadow opacity strength alpha intensity'},
+    ]},
+    { title:'Interaction', items:[
+      {id:'hoverLift', label:'Hover lift', type:'range', min:0, max:8, unit:'px', keys:'hover lift float raise effect interaction'},
+    ]},
+  ];
+
+  /* ============ build the inspector ============ */
+  const groupsEl = $('#groups');
+  const ctlEls = {};
+
+  GROUPS.forEach((g, gi) => {
+    const gEl = mk('section'); gEl.className = 'group';
+    gEl.style.animationDelay = (gi * 55) + 'ms';
+    const h = mk('h3'); h.textContent = g.title;
+    gEl.appendChild(h);
+    const list = mk('div');
+
+    g.items.forEach(item => {
+      const root = mk('div'); root.className = 'ctl';
+      root.dataset.id = item.id;
+      root.dataset.search = (item.label + ' ' + (item.keys||'') + ' ' + g.title).toLowerCase();
+
+      const head = mk('div'); head.className = 'ctl-head';
+      const lab = mk('label'); lab.textContent = item.label; lab.htmlFor = 'ctl-' + item.id;
+      const val = mk('span'); val.className = 'ctl-val';
+      head.append(lab, val); root.appendChild(head);
+
+      const body = mk('div'); body.className = 'ctl-body';
+      const input = mk('input'); input.id = 'ctl-' + item.id;
+      let inputEl = input;
+
+      if (item.type === 'range'){
+        input.type='range'; input.min=item.min; input.max=item.max; input.step=item.step||1;
+      } else if (item.type === 'color'){
+        input.type='color';
+      } else if (item.type === 'select'){
+        inputEl = mk('select'); inputEl.id = input.id;
+        item.options.forEach(([v,l])=>{ const o=mk('option'); o.value=v; o.textContent=l; inputEl.appendChild(o); });
+      } else if (item.type === 'text'){
+        input.type='text';
+      } else if (item.type === 'toggle'){
+        const tgl = mk('label'); tgl.className='tgl';
+        const trk = mk('span'); trk.className='track';
+        tgl.append(input, trk); body.appendChild(tgl);
+      }
+      if (item.type !== 'toggle') body.appendChild(inputEl);
+      root.appendChild(body);
+      list.appendChild(root);
+      ctlEls[item.id] = {root, val, input: inputEl, item};
+    });
+    gEl.appendChild(list);
+    groupsEl.appendChild(gEl);
+  });
+
+  /* ============ helpers ============ */
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function hexToRgba(hex, a){
+    const n = parseInt(hex.slice(1), 16);
+    const r = (n>>16)&255, g = (n>>8)&255, b = n&255;
+    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + (Math.round(a*100)/100) + ')';
+  }
+  function fmt(id, v, item){
+    if (item.type === 'range')  return (+v) + (item.unit || '');
+    if (item.type === 'color')  return v.toUpperCase();
+    if (item.type === 'toggle') return v ? 'On' : 'Off';
+    if (item.type === 'text')   return v || '—';
+    return v;
+  }
+  function setFill(input){
+    const min = +input.min, max = +input.max, v = +input.value;
+    input.style.setProperty('--fill', ((v-min)/(max-min)*100) + '%');
+  }
+  function updateVal(id){
+    const c = ctlEls[id];
+    if (c) c.val.textContent = fmt(id, state[id], c.item);
+  }
+
+  /* ============ snippet generation ============ */
+  function buildSnippet(){
+    const s = state;
+    const L = [], H = [];
+    const line  = (p,h)=>{ L.push(p); H.push(h); };
+    const sel   = t => line(t, '<span class="s">' + t + '</span> {');
+    const close = () => line('}', '}');
+    const decl  = (p,v)=> line('  ' + p + ': ' + v + ';',
+                               '  <span class="k">' + p + '</span>: <span class="v">' + v + ';</span>');
+
+    const label = s.label || 'Button';
+    line('<button class="btn">' + label + '</button>',
+      '<span class="t">&lt;</span><span class="tag">button</span> <span class="a">class</span>=<span class="v">"btn"</span><span class="t">&gt;</span>' +
+      '<span class="c">' + escapeHtml(label) + '</span>' +
+      '<span class="t">&lt;/</span><span class="tag">button</span><span class="t">&gt;</span>');
+    line('', '');
+
+    sel('.btn');
+    decl('display','inline-block');
+    decl('padding', s.padY + 'px ' + s.padX + 'px');
+    decl('font-family','inherit');
+    decl('font-size', s.fontSize + 'px');
+    decl('font-weight', '' + s.fontWeight);
+    if (s.letterSpacing) decl('letter-spacing', s.letterSpacing + 'px');
+    decl('background', s.bg);
+    decl('color', s.color);
+    if (s.borderWidth > 0 && s.borderStyle !== 'none')
+      decl('border', s.borderWidth + 'px ' + s.borderStyle + ' ' + s.borderColor);
+    decl('border-radius', s.radius + 'px');
+    if (s.shadowOn)
+      decl('box-shadow', s.shadowX + 'px ' + s.shadowY + 'px ' + s.shadowBlur + 'px ' +
+                         hexToRgba(s.shadowColor, s.shadowOpacity/100));
+    decl('cursor','pointer');
+    decl('transition','transform .15s ease, box-shadow .15s ease');
+    close();
+
+    if (s.hoverLift > 0){
+      sel('.btn:hover');
+      decl('transform', 'translateY(-' + s.hoverLift + 'px)');
+      if (s.shadowOn)
+        decl('box-shadow', s.shadowX + 'px ' + (s.shadowY + s.hoverLift) + 'px ' +
+                           (s.shadowBlur + s.hoverLift*2) + 'px ' + hexToRgba(s.shadowColor, s.shadowOpacity/100));
+      close();
+      sel('.btn:active');
+      decl('transform','translateY(0) scale(.98)');
+      close();
+    }
+    return { plain: L.join('\n'), html: H.join('\n') };
+  }
+
+  /* ============ render ============ */
+  const previewBtn = $('#previewBtn');
+  const codeBody   = $('#codeBody');
+
+  function render(){
+    const s = state;
+    previewBtn.textContent = s.label || 'Button';
+
+    const hasBorder = s.borderWidth > 0 && s.borderStyle !== 'none';
+    const borderCss = hasBorder ? (s.borderWidth + 'px ' + s.borderStyle + ' ' + s.borderColor) : 'none';
+    const sh = s.shadowOn
+      ? (s.shadowX + 'px ' + s.shadowY + 'px ' + s.shadowBlur + 'px ' + hexToRgba(s.shadowColor, s.shadowOpacity/100))
+      : 'none';
+
+    const dyn = ['.preview-btn{padding:' + s.padY + 'px ' + s.padX + 'px;background:' + s.bg +
+      ';color:' + s.color + ';font-size:' + s.fontSize + 'px;font-weight:' + s.fontWeight +
+      ';letter-spacing:' + s.letterSpacing + 'px;border:' + borderCss + ';border-radius:' +
+      s.radius + 'px;box-shadow:' + sh + '}'];
+    if (s.hoverLift > 0){
+      const sh2 = s.shadowOn
+        ? (s.shadowX + 'px ' + (s.shadowY + s.hoverLift) + 'px ' + (s.shadowBlur + s.hoverLift*2) + 'px ' + hexToRgba(s.shadowColor, s.shadowOpacity/100))
+        : sh;
+      dyn.push('.preview-btn:hover{transform:translateY(-' + s.hoverLift + 'px);box-shadow:' + sh2 + '}');
+      dyn.push('.preview-btn:active{transform:translateY(0) scale(.98)}');
+    }
+    $('#dyn').textContent = dyn.join('\n');
+
+    const out = buildSnippet();
+    snippetPlain = out.plain;
+    codeBody.innerHTML = out.html;
+    codeBody.classList.remove('flash'); void codeBody.offsetWidth; codeBody.classList.add('flash');
+    $('#codeLines').textContent = out.plain.split('\n').length + ' lines';
+  }
+
+  function syncControls(){
+    for (const id in ctlEls){
+      const c = ctlEls[id], v = state[id];
+      if (c.item.type === 'toggle') c.input.checked = !!v;
+      else c.input.value = v;
+      if (c.item.type === 'range') setFill(c.input);
+      c.val.textContent = fmt(id, v, c.item);
+    }
+  }
+
+  /* ============ wire inputs ============ */
+  for (const id in ctlEls){
+    const { input, item } = ctlEls[id];
+    if (id === 'shadowPreset'){
+      input.addEventListener('change', () => {
+        const v = input.value;
+        state.shadowPreset = v;
+        if (v !== 'custom'){ Object.assign(state, PRESETS[v]); state.shadowOn = true; }
+        syncControls(); render();
+      });
+    } else if (item.type === 'toggle'){
+      input.addEventListener('change', () => { state[id] = input.checked; render(); });
+    } else if (item.type === 'range'){
+      input.addEventListener('input', () => {
+        state[id] = parseFloat(input.value);
+        if (id.indexOf('shadow') === 0 && id !== 'shadowPreset'){
+          state.shadowPreset = 'custom';
+          ctlEls.shadowPreset.input.value = 'custom';
+        }
+        setFill(input); updateVal(id); render();
+      });
+    } else if (item.type === 'select'){
+      input.addEventListener('change', () => { state[id] = input.value; updateVal(id); render(); });
+    } else {
+      input.addEventListener('input', () => { state[id] = input.value; updateVal(id); render(); });
+    }
+  }
+
+  /* ============ search / filter ============ */
+  const searchInput = $('#searchInput');
+  function applyFilter(){
+    const q = searchInput.value.trim().toLowerCase();
+    const tokens = q ? q.split(/\s+/) : [];
+    let vis = 0, total = 0;
+    document.querySelectorAll('.ctl').forEach(c => {
+      total++;
+      const ok = tokens.every(t => c.dataset.search.includes(t));
+      c.classList.toggle('off', !ok);
+      if (ok) vis++;
+    });
+    document.querySelectorAll('.group').forEach(g => {
+      const any = Array.prototype.some.call(g.querySelectorAll('.ctl'), c => !c.classList.contains('off'));
+      g.classList.toggle('off', !any);
+    });
+    $('#empty').style.display = vis === 0 ? 'block' : 'none';
+    $('#filterCount').style.display = tokens.length ? 'inline' : 'none';
+    $('#kbdHint').style.display = tokens.length ? 'none' : 'block';
+    $('#filterCount').textContent = vis + ' / ' + total;
+  }
+  searchInput.addEventListener('input', applyFilter);
+  $('#clearFilter').addEventListener('click', () => { searchInput.value=''; applyFilter(); searchInput.focus(); });
+  document.addEventListener('keydown', e => {
+    const tag = (document.activeElement || {}).tagName || '';
+    if (e.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(tag)){ e.preventDefault(); searchInput.focus(); }
+    if (e.key === 'Escape' && document.activeElement === searchInput){
+      searchInput.value = ''; applyFilter(); searchInput.blur();
+    }
+  });
+
+  /* ============ toast + copy ============ */
+  function toast(msg){
+    const t = $('#toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 1600);
+  }
+  function copyText(txt){
+    if (navigator.clipboard && navigator.clipboard.writeText)
+      return navigator.clipboard.writeText(txt).then(()=>true, fallback);
+    return Promise.resolve(fallback());
+    function fallback(){
+      const ta = mk('textarea'); ta.value = txt;
+      ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      let ok = false; try { ok = document.execCommand('copy'); } catch(e){}
+      ta.remove(); return ok;
+    }
+  }
+  $('#copyBtn').addEventListener('click', function(){
+    const lbl = $('#copyLabel');
+    copyText(snippetPlain).then(ok => {
+      toast(ok ? 'Code copied to clipboard ✓' : 'Copy failed — select the code manually');
+      if (ok){
+        this.classList.add('done'); lbl.textContent = 'Copied ✓';
+        setTimeout(() => { this.classList.remove('done'); lbl.textContent = 'Copy code'; }, 1300);
+      }
+    });
+  });
+
+  /* ============ drag the code out ============ */
+  function makeDraggable(el){
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', snippetPlain);
+      e.dataTransfer.effectAllowed = 'copy';
+      document.body.classList.add('dragging');
+    });
+    el.addEventListener('dragend', () => document.body.classList.remove('dragging'));
+  }
+  makeDraggable(previewBtn);
+  makeDraggable($('#fileTab'));
+
+  /* ============ shuffle + reset ============ */
+  const PALS = [
+    ['#2f6df6','#ffffff'], ['#0f172a','#ffffff'], ['#16a34a','#ffffff'],
+    ['#dc2626','#ffffff'],  ['#7c3aed','#ffffff'], ['#0891b2','#ffffff'],
+    ['#ea580c','#ffffff'],  ['#ffffff','#0f172a'], ['#111827','#38bdf8']
+  ];
+  const R = n => Math.floor(Math.random() * n);
+  function shuffle(){
+    const pal = PALS[R(PALS.length)];
+    const preset = ['soft','card','elevated','neon'][R(4)];
+    state.bg = pal[0]; state.color = pal[1];
+    state.radius = [0,4,8,12,16,22,28][R(7)];
+    state.fontWeight = [500,600,700][R(3)];
+    state.fontSize = 13 + R(5);
+    state.padX = 16 + R(20);
+    state.padY = 9 + R(10);
+    state.borderStyle = Math.random() < .12 ? 'dashed' : 'solid';
+    state.borderWidth = (state.borderStyle === 'dashed') ? 1 + R(3) : (Math.random() < .25 ? 1 + R(3) : 0);
+    if (state.borderWidth) state.borderColor = Math.random() < .5 ? pal[1] : pal[0];
+    Object.assign(state, PRESETS[preset]);
+    state.shadowPreset = preset; state.shadowOn = true;
+    state.hoverLift = [0,1,2,3,4][R(5)];
+    syncControls(); render();
+    previewBtn.classList.remove('pop'); void previewBtn.offsetWidth; previewBtn.classList.add('pop');
+  }
+  $('#shuffleBtn').addEventListener('click', shuffle);
+  $('#resetBtn').addEventListener('click', () => {
+    state = Object.assign({}, DEFAULTS);
+    syncControls(); render(); toast('Reset to defaults');
+  });
+
+  /* ============ init ============ */
+  syncControls();
+  render();
+})();
+</script>
+</body>
+</html>
