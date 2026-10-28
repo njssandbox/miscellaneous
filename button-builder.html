@@ -1,50 +1,806 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Button Studio</title>
-<style>
-*{box-sizing:border-box}body{margin:0;background:#f5f6fa;color:#202333;font:14px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}header{height:78px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e3e5ed;background:white}h1{font-size:19px;letter-spacing:-.6px;margin:0}h1 span{color:#7055df}header p{margin:5px 0 0;font-size:12px;color:#777c8c}.badge{font-size:11px;letter-spacing:1.2px;color:#655487;background:#f2eefc;border-radius:20px;padding:8px 12px}main{display:grid;grid-template-columns:330px minmax(0,1fr);min-height:calc(100vh - 78px)}aside{background:white;border-right:1px solid #e3e5ed;padding:22px;max-height:calc(100vh - 78px);overflow:auto;position:sticky;top:0}.search{position:sticky;top:-22px;z-index:2;background:white;padding:0 0 15px}.search input{width:100%;padding:12px 14px;border:1px solid #dddfea;border-radius:9px;background:#f8f9fc;outline-color:#795be8}.section{margin:12px 0 23px}.section h2{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:#777c8c;margin:0 0 16px}.field{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px 0;min-height:30px}.field label{font-size:12px;color:#555b6f}.field input:not([type=checkbox]),.field select{width:142px;min-width:0;border:1px solid #e0e2ea;border-radius:6px;padding:7px;background:white;color:#303547}.field input[type=color]{height:34px;padding:3px}.field input[type=checkbox]{accent-color:#7156db;width:17px;height:17px}.work{padding:28px 34px;max-width:1250px;width:100%;margin:auto}.eyebrow{font-size:11px;letter-spacing:1.6px;color:#777c8c;font-weight:650}.preview{border:1px solid #dddfea;border-radius:14px;overflow:hidden;background:white;margin-top:13px}.previewbar{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #eeeef4;font-size:12px;color:#777c8c}.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#48ad82;margin-right:6px}.stage{min-height:290px;display:flex;align-items:center;justify-content:center;padding:42px;overflow:auto;background-image:radial-gradient(#dfe2eb .8px,transparent .8px);background-size:18px 18px}.stage.dark{background-color:#242737;background-image:radial-gradient(#43475b .8px,transparent .8px)}.stage.plain{background:#fff}.hint{text-align:center;font-size:12px;color:#7b8191;padding:16px;border-top:1px solid #eeeef4}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.ui{border:1px solid #dddfea;background:white;border-radius:7px;padding:9px 13px;color:#4c5265;font-size:12px}.ui.primary{background:#7055dc;color:white;border-color:#7055dc}.small{font-size:12px;color:#7b8191;line-height:1.7;margin:12px 0}.panel{background:white;border:1px solid #e0e2eb;border-radius:12px;padding:18px;margin-top:18px}.panel h2{font-size:13px;margin:0 0 8px}.panel textarea{width:100%;min-height:110px;resize:vertical;font:11px/1.7 ui-monospace,SFMono-Regular,monospace;background:#f8f9fc;border:1px solid #e5e7ef;border-radius:7px;padding:12px;color:#555d76}.drop{border:1px dashed #c8c2dd;border-radius:8px;min-height:85px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;padding:20px;color:#9296a5;font-size:12px}.drop.over{background:#f2edff;border-color:#7055dc}details summary{cursor:pointer;font-size:12px;font-weight:600}details textarea{margin-top:12px;min-height:215px}.status{min-height:20px;color:#66509f;font-size:12px}#empty{font-size:12px;color:#777c8c}footer{font-size:11px;color:#979bab;margin-top:22px}select.ui{max-width:130px}button:focus-visible,summary:focus-visible{outline:3px solid #a99bea;outline-offset:3px}[hidden]{display:none!important}@media(max-width:780px){main{grid-template-columns:280px minmax(0,1fr)}aside{padding:17px}.work{padding:20px}.field input:not([type=checkbox]),.field select{width:122px}.stage{padding:28px;min-height:240px}}@media(max-width:600px){header{padding:0 18px}.badge{display:none}main{display:block}aside{position:relative;max-height:420px;border-bottom:1px solid #e3e5ed;border-right:0}.work{padding:22px 16px}.field input:not([type=checkbox]),.field select{width:52%}}
-</style></head><body>
-<header><div><h1><span>◈</span> Button Studio</h1><p>A little workbench for your next button.</p></div><span class="badge">ONE FILE · ZERO DEPENDENCIES</span></header>
-<main><aside><div class="search"><input type="search" id="search" placeholder="Search properties…" aria-label="Search button properties"></div><div id="controls"></div><p id="empty" hidden>No matching properties.</p><button class="ui" id="reset">Reset defaults</button></aside>
-<section class="work"><div class="eyebrow">MAKE IT YOURS</div><div class="preview"><div class="previewbar"><span><i class="dot"></i>Live preview</span><select id="surface" class="ui" aria-label="Preview background"><option value="grid">Dot grid</option><option value="plain">White</option><option value="dark">Dark</option></select></div><div class="stage" id="stage"><button id="preview" type="button" draggable="true">Get started →</button></div><div class="hint">Grab the button and drag it into an app that accepts HTML drops.</div></div>
-<div class="actions"><button class="ui primary" id="copy">Copy HTML</button><button class="ui" id="download">Download button</button></div><div class="status" id="status" role="status" aria-live="polite"></div>
-<div class="panel"><h2>Your button, ready to go</h2><textarea id="output" spellcheck="false" readonly aria-label="Exported button HTML"></textarea><p class="small">Inline styles travel with the button. CSS order applies inside a flex or grid container. Disabled buttons can still be exported using the drag handle below.</p><button class="ui" id="handle" draggable="true" type="button">⠿ Drag button HTML</button></div>
-<div class="panel"><h2>Try a drop</h2><p class="small">Drag your preview here to check the exported result.</p><div id="drop" class="drop" tabindex="0" aria-label="Button drop test">Drop your button here</div><button class="ui" id="clear" style="margin-top:12px">Clear</button></div>
-<div class="panel"><details><summary>Make my app accept this button</summary><p class="small">A web page cannot force another app to import a drop. Add this listener to a drop container in your app (replace #drop-target). It uses the structured payload sent by this file. Existing builders may already accept the standard text/html payload.</p><textarea id="integration" readonly spellcheck="false" aria-label="Drop integration JavaScript"></textarea><button class="ui" id="copyIntegration" style="margin-top:10px">Copy drop handler</button></details></div><footer>Works offline. Settings are remembered in this browser when storage is available.</footer></section></main>
-<script>
-'use strict';
-const MIME='application/x-button-studio+json';
-const groups=[
-['Content',[
-['text','Button text','text','Get started →','label content'],['title','Tooltip','text','','title accessibility'],['disabled','Disabled','checkbox',false,'state']]],
-['Color & type',[
-['background','Background color','color','#7055dc','fill'],['color','Text color','color','#ffffff','foreground'],['fontFamily','Font family','select','system-ui, sans-serif',['system-ui, sans-serif','Arial, sans-serif','Georgia, serif','monospace']],['fontSize','Font size (px)','number',16,8,100],['fontWeight','Font weight','select','600',['400','500','600','700','800']],['letterSpacing','Letter spacing (px)','number',0,-3,20]]],
-['Spacing & size',[
-['paddingY','Padding vertical (px)','number',14,0,120],['paddingX','Padding horizontal (px)','number',26,0,200],['width','Width (px; 0 = auto)','number',0,0,1200],['height','Height (px; 0 = auto)','number',0,0,600],['order','CSS order','number',0,-100,100]]],
-['Border',[
-['borderWidth','Border width (px)','number',0,0,30],['borderStyle','Border style','select','solid',['solid','dashed','dotted','double','none']],['borderColor','Border color','color','#7055dc','outline'],['borderRadius','Corner radius (px)','number',10,0,200]]],
-['Shadow & effects',[
-['shadow','Enable shadow','checkbox',true,'box shadow'],['shadowX','Shadow X (px)','number',0,-100,100],['shadowY','Shadow Y (px)','number',6,-100,100],['shadowBlur','Shadow blur (px)','number',16,0,100],['shadowSpread','Shadow spread (px)','number',0,-50,50],['shadowColor','Shadow color','color','#7055dc','box shadow'],['shadowOpacity','Shadow opacity (%)','number',22,0,100],['opacity','Button opacity (%)','number',100,0,100]]]
-];
-const fields=groups.flatMap(g=>g[1]);const defaults=Object.fromEntries(fields.map(f=>[f[0],f[3]]));let state={...defaults};
-try{const saved=JSON.parse(localStorage.getItem('button-studio-v1'));if(saved&&typeof saved==='object')for(const f of fields){let v=saved[f[0]];if(f[2]==='checkbox'&&typeof v==='boolean')state[f[0]]=v;else if(f[2]==='number'&&typeof v==='number'&&Number.isFinite(v))state[f[0]]=Math.max(f[4],Math.min(f[5],v));else if(f[2]==='color'&&/^#[0-9a-f]{6}$/i.test(v))state[f[0]]=v;else if(f[2]==='select'&&f[4].includes(v))state[f[0]]=v;else if(f[2]==='text'&&typeof v==='string')state[f[0]]=v.slice(0,1000);}}catch{}
-const $=id=>document.getElementById(id);let statusTimer;
-function notify(text){$('status').textContent=text;clearTimeout(statusTimer);statusTimer=setTimeout(()=>$('status').textContent='',5000)}
-for(const [name,items] of groups){const section=document.createElement('section');section.className='section';const h=document.createElement('h2');h.textContent=name;section.append(h);for(const f of items){const [key,label,type]=f;const row=document.createElement('div');row.className='field';row.dataset.search=(name+' '+label+' '+key+' '+(typeof f[4]==='string'?f[4]:'')).toLowerCase();const lab=document.createElement('label');lab.htmlFor='f-'+key;lab.textContent=label;const input=document.createElement(type==='select'?'select':'input');input.id='f-'+key;if(type==='select'){for(const value of f[4]){const o=document.createElement('option');o.value=value;o.textContent=value;input.append(o)}}else input.type=type;if(type==='number'){input.min=f[4];input.max=f[5];input.step=key==='letterSpacing'?'.1':'1'}if(type==='text')input.maxLength=1000;if(type==='checkbox')input.checked=state[key];else input.value=state[key];input.addEventListener('input',()=>{if(type==='number'){if(input.value===''||!Number.isFinite(input.valueAsNumber))return;state[key]=Math.min(f[5],Math.max(f[4],input.valueAsNumber))}else state[key]=type==='checkbox'?input.checked:input.value;render()});input.addEventListener('change',()=>{if(type==='number')input.value=state[key]});row.append(lab,input);section.append(row)}$('controls').append(section)}
-function styleValues(){const s=state;const c=s.shadowColor;const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));return {appearance:'none',boxSizing:'border-box',display:'inline-flex',alignItems:'center',justifyContent:'center',textAlign:'center',whiteSpace:'pre-wrap',overflowWrap:'anywhere',verticalAlign:'middle',margin:'0',backgroundColor:s.background,color:s.color,fontFamily:s.fontFamily,fontSize:s.fontSize+'px',fontWeight:s.fontWeight,lineHeight:'1.4',letterSpacing:s.letterSpacing+'px',padding:s.paddingY+'px '+s.paddingX+'px',width:s.width?s.width+'px':'auto',height:s.height?s.height+'px':'auto',order:String(s.order),border:s.borderWidth+'px '+s.borderStyle+' '+s.borderColor,borderRadius:s.borderRadius+'px',boxShadow:s.shadow?`${s.shadowX}px ${s.shadowY}px ${s.shadowBlur}px ${s.shadowSpread}px rgba(${rgb.join(', ')}, ${s.shadowOpacity/100})`:'none',opacity:String(s.opacity/100),cursor:s.disabled?'not-allowed':'pointer'};}
-function makeButton(){const b=document.createElement('button');b.type='button';b.textContent=state.text;b.disabled=state.disabled;if(state.title)b.title=state.title;Object.assign(b.style,styleValues());return b}
-function render(){const b=$('preview');b.textContent=state.text;b.title=state.title;b.disabled=state.disabled;b.removeAttribute('style');Object.assign(b.style,styleValues());$('output').value=makeButton().outerHTML;try{localStorage.setItem('button-studio-v1',JSON.stringify(state))}catch{}}
-function payload(){return {version:1,type:'button',text:state.text,title:state.title,disabled:state.disabled,style:styleValues()}}
-for(const id of ['preview','handle']){$(id).addEventListener('dragstart',e=>{const dt=e.dataTransfer;dt.effectAllowed='copy';dt.setData('text/html',makeButton().outerHTML);dt.setData('text/plain',makeButton().outerHTML);dt.setData(MIME,JSON.stringify(payload()));notify('Drag to an HTML-aware editor or your app’s drop target.')})}
-$('search').addEventListener('input',()=>{const terms=$('search').value.toLowerCase().trim().split(/\s+/);let count=0;for(const section of document.querySelectorAll('.section')){let visible=0;for(const row of section.querySelectorAll('.field')){row.hidden=!terms.every(t=>row.dataset.search.includes(t));if(!row.hidden)visible++}section.hidden=!visible;count+=visible}$('empty').hidden=count>0});
-$('surface').addEventListener('change',()=>{$('stage').className='stage '+$('surface').value});
-$('reset').addEventListener('click',()=>{state={...defaults};for(const f of fields){const input=$('f-'+f[0]);if(f[2]==='checkbox')input.checked=state[f[0]];else input.value=state[f[0]]}render();notify('Defaults restored.')});
-async function copy(text){try{if(!navigator.clipboard)throw Error();await navigator.clipboard.writeText(text);notify('Copied to clipboard.')}catch{const t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;top:0;left:0;opacity:0';document.body.append(t);t.select();let ok=false;try{ok=document.execCommand('copy')}catch{}t.remove();notify(ok?'Copied to clipboard.':'Select the code and press Ctrl+C / ⌘C to copy.')}}
-$('copy').addEventListener('click',()=>copy($('output').value));$('copyIntegration').addEventListener('click',()=>copy($('integration').value));
-$('download').addEventListener('click',()=>{const html='\x3c!doctype html>\n\x3chtml lang="en">\x3cmeta charset="utf-8">\x3cmeta name="viewport" content="width=device-width,initial-scale=1">\x3ctitle>Custom button\x3c/title>\x3cbody>\n'+makeButton().outerHTML+'\n\x3c/body>\x3c/html>';const url=URL.createObjectURL(new Blob([html],{type:'text/html'}));const a=document.createElement('a');a.href=url;a.download='custom-button.html';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)});
-// This receiver deliberately creates only a button: it never inserts arbitrary dropped HTML.
-const allowedStyleKeys=Object.keys(styleValues());
-function readButton(raw){const p=JSON.parse(raw);if(p.version!==1||p.type!=='button'||typeof p.text!=='string'||!p.style||typeof p.style!=='object')throw Error('Invalid button');const b=document.createElement('button');b.type='button';b.textContent=p.text.slice(0,1000);b.title=typeof p.title==='string'?p.title.slice(0,1000):'';b.disabled=p.disabled===true;for(const key of allowedStyleKeys)if(typeof p.style[key]==='string'&&p.style[key].length<300)b.style[key]=p.style[key];return b}
-const zone=$('drop');zone.addEventListener('dragover',e=>{if(Array.from(e.dataTransfer.types).includes(MIME)){e.preventDefault();e.dataTransfer.dropEffect='copy';zone.classList.add('over')}});zone.addEventListener('dragleave',()=>zone.classList.remove('over'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('over');try{const b=readButton(e.dataTransfer.getData(MIME));zone.replaceChildren(b);notify('Dropped successfully. The exported button keeps its styles.')}catch{notify('Drag the button from the preview or drag handle.')}});$('clear').addEventListener('click',()=>zone.textContent='Drop your button here');
-$('integration').value=`// Run after your drop container exists.\nconst target = document.querySelector('#drop-target');\nconst mime = '${MIME}';\nconst allowedStyleKeys = ${JSON.stringify(allowedStyleKeys)};\n${readButton.toString()}\ntarget.addEventListener('dragover', event => {\n  if (Array.from(event.dataTransfer.types).includes(mime)) {\n    event.preventDefault();\n    event.dataTransfer.dropEffect = 'copy';\n  }\n});\ntarget.addEventListener('drop', event => {\n  const raw = event.dataTransfer.getData(mime);\n  if (!raw) return;\n  event.preventDefault();\n  try { target.append(readButton(raw)); }\n  catch (error) { console.error('Invalid button drop', error); }\n});`;
-render();
-</script></body></html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Button Studio</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f5f6fa;
+        color: #202333;
+        font:
+          14px system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      header {
+        height: 78px;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #e3e5ed;
+        background: white;
+      }
+      h1 {
+        font-size: 19px;
+        letter-spacing: -0.6px;
+        margin: 0;
+      }
+      h1 span {
+        color: #7055df;
+      }
+      header p {
+        margin: 5px 0 0;
+        font-size: 12px;
+        color: #777c8c;
+      }
+      .badge {
+        font-size: 11px;
+        letter-spacing: 1.2px;
+        color: #655487;
+        background: #f2eefc;
+        border-radius: 20px;
+        padding: 8px 12px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 330px minmax(0, 1fr);
+        min-height: calc(100vh - 78px);
+      }
+      aside {
+        background: white;
+        border-right: 1px solid #e3e5ed;
+        padding: 22px;
+        max-height: calc(100vh - 78px);
+        overflow: auto;
+        position: sticky;
+        top: 0;
+      }
+      .search {
+        position: sticky;
+        top: -22px;
+        z-index: 2;
+        background: white;
+        padding: 0 0 15px;
+      }
+      .search input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #dddfea;
+        border-radius: 9px;
+        background: #f8f9fc;
+        outline-color: #795be8;
+      }
+      .section {
+        margin: 12px 0 23px;
+      }
+      .section h2 {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        color: #777c8c;
+        margin: 0 0 16px;
+      }
+      .field {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin: 12px 0;
+        min-height: 30px;
+      }
+      .field label {
+        font-size: 12px;
+        color: #555b6f;
+      }
+      .field input:not([type="checkbox"]),
+      .field select {
+        width: 142px;
+        min-width: 0;
+        border: 1px solid #e0e2ea;
+        border-radius: 6px;
+        padding: 7px;
+        background: white;
+        color: #303547;
+      }
+      .field input[type="color"] {
+        height: 34px;
+        padding: 3px;
+      }
+      .field input[type="checkbox"] {
+        accent-color: #7156db;
+        width: 17px;
+        height: 17px;
+      }
+      .work {
+        padding: 28px 34px;
+        max-width: 1250px;
+        width: 100%;
+        margin: auto;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 1.6px;
+        color: #777c8c;
+        font-weight: 650;
+      }
+      .preview {
+        border: 1px solid #dddfea;
+        border-radius: 14px;
+        overflow: hidden;
+        background: white;
+        margin-top: 13px;
+      }
+      .previewbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 18px;
+        border-bottom: 1px solid #eeeef4;
+        font-size: 12px;
+        color: #777c8c;
+      }
+      .dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #48ad82;
+        margin-right: 6px;
+      }
+      .stage {
+        min-height: 290px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 42px;
+        overflow: auto;
+        background-image: radial-gradient(#dfe2eb 0.8px, transparent 0.8px);
+        background-size: 18px 18px;
+      }
+      .stage.dark {
+        background-color: #242737;
+        background-image: radial-gradient(#43475b 0.8px, transparent 0.8px);
+      }
+      .stage.plain {
+        background: #fff;
+      }
+      .hint {
+        text-align: center;
+        font-size: 12px;
+        color: #7b8191;
+        padding: 16px;
+        border-top: 1px solid #eeeef4;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 18px 0;
+      }
+      .ui {
+        border: 1px solid #dddfea;
+        background: white;
+        border-radius: 7px;
+        padding: 9px 13px;
+        color: #4c5265;
+        font-size: 12px;
+      }
+      .ui.primary {
+        background: #7055dc;
+        color: white;
+        border-color: #7055dc;
+      }
+      .small {
+        font-size: 12px;
+        color: #7b8191;
+        line-height: 1.7;
+        margin: 12px 0;
+      }
+      .panel {
+        background: white;
+        border: 1px solid #e0e2eb;
+        border-radius: 12px;
+        padding: 18px;
+        margin-top: 18px;
+      }
+      .panel h2 {
+        font-size: 13px;
+        margin: 0 0 8px;
+      }
+      .panel textarea {
+        width: 100%;
+        min-height: 110px;
+        resize: vertical;
+        font:
+          11px/1.7 ui-monospace,
+          SFMono-Regular,
+          monospace;
+        background: #f8f9fc;
+        border: 1px solid #e5e7ef;
+        border-radius: 7px;
+        padding: 12px;
+        color: #555d76;
+      }
+      .drop {
+        border: 1px dashed #c8c2dd;
+        border-radius: 8px;
+        min-height: 85px;
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 20px;
+        color: #9296a5;
+        font-size: 12px;
+      }
+      .drop.over {
+        background: #f2edff;
+        border-color: #7055dc;
+      }
+      details summary {
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      details textarea {
+        margin-top: 12px;
+        min-height: 215px;
+      }
+      .status {
+        min-height: 20px;
+        color: #66509f;
+        font-size: 12px;
+      }
+      #empty {
+        font-size: 12px;
+        color: #777c8c;
+      }
+      footer {
+        font-size: 11px;
+        color: #979bab;
+        margin-top: 22px;
+      }
+      select.ui {
+        max-width: 130px;
+      }
+      button:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid #a99bea;
+        outline-offset: 3px;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      @media (max-width: 780px) {
+        main {
+          grid-template-columns: 280px minmax(0, 1fr);
+        }
+        aside {
+          padding: 17px;
+        }
+        .work {
+          padding: 20px;
+        }
+        .field input:not([type="checkbox"]),
+        .field select {
+          width: 122px;
+        }
+        .stage {
+          padding: 28px;
+          min-height: 240px;
+        }
+      }
+      @media (max-width: 600px) {
+        header {
+          padding: 0 18px;
+        }
+        .badge {
+          display: none;
+        }
+        main {
+          display: block;
+        }
+        aside {
+          position: relative;
+          max-height: 420px;
+          border-bottom: 1px solid #e3e5ed;
+          border-right: 0;
+        }
+        .work {
+          padding: 22px 16px;
+        }
+        .field input:not([type="checkbox"]),
+        .field select {
+          width: 52%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1><span>◈</span> Button Studio</h1>
+        <p>A little workbench for your next button.</p>
+      </div>
+      <span class="badge">ONE FILE · ZERO DEPENDENCIES</span>
+    </header>
+    <main>
+      <aside>
+        <div class="search">
+          <input
+            type="search"
+            id="search"
+            placeholder="Search properties…"
+            aria-label="Search button properties"
+          />
+        </div>
+        <div id="controls"></div>
+        <p id="empty" hidden>No matching properties.</p>
+        <button class="ui" id="reset">Reset defaults</button>
+      </aside>
+      <section class="work">
+        <div class="eyebrow">MAKE IT YOURS</div>
+        <div class="preview">
+          <div class="previewbar">
+            <span><i class="dot"></i>Live preview</span
+            ><select id="surface" class="ui" aria-label="Preview background">
+              <option value="grid">Dot grid</option>
+              <option value="plain">White</option>
+              <option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="stage" id="stage">
+            <button id="preview" type="button" draggable="true">
+              Get started →
+            </button>
+          </div>
+          <div class="hint">
+            Grab the button and drag it into an app that accepts HTML drops.
+          </div>
+        </div>
+        <div class="actions">
+          <button class="ui primary" id="copy">Copy HTML</button
+          ><button class="ui" id="download">Download button</button>
+        </div>
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+        <div class="panel">
+          <h2>Your button, ready to go</h2>
+          <textarea
+            id="output"
+            spellcheck="false"
+            readonly
+            aria-label="Exported button HTML"
+          ></textarea>
+          <p class="small">
+            Inline styles travel with the button. CSS order applies inside a
+            flex or grid container. Disabled buttons can still be exported using
+            the drag handle below.
+          </p>
+          <button class="ui" id="handle" draggable="true" type="button">
+            ⠿ Drag button HTML
+          </button>
+        </div>
+        <div class="panel">
+          <h2>Try a drop</h2>
+          <p class="small">
+            Drag your preview here to check the exported result.
+          </p>
+          <div
+            id="drop"
+            class="drop"
+            tabindex="0"
+            aria-label="Button drop test"
+          >
+            Drop your button here
+          </div>
+          <button class="ui" id="clear" style="margin-top: 12px">Clear</button>
+        </div>
+        <div class="panel">
+          <details>
+            <summary>Make my app accept this button</summary>
+            <p class="small">
+              A web page cannot force another app to import a drop. Add this
+              listener to a drop container in your app (replace #drop-target).
+              It uses the structured payload sent by this file. Existing
+              builders may already accept the standard text/html payload.
+            </p>
+            <textarea
+              id="integration"
+              readonly
+              spellcheck="false"
+              aria-label="Drop integration JavaScript"
+            ></textarea
+            ><button class="ui" id="copyIntegration" style="margin-top: 10px">
+              Copy drop handler
+            </button>
+          </details>
+        </div>
+        <footer>
+          Works offline. Settings are remembered in this browser when storage is
+          available.
+        </footer>
+      </section>
+    </main>
+    <script>
+      "use strict";
+      const MIME = "application/x-button-studio+json";
+      const groups = [
+        [
+          "Content",
+          [
+            ["text", "Button text", "text", "Get started →", "label content"],
+            ["title", "Tooltip", "text", "", "title accessibility"],
+            ["disabled", "Disabled", "checkbox", false, "state"],
+          ],
+        ],
+        [
+          "Color & type",
+          [
+            ["background", "Background color", "color", "#7055dc", "fill"],
+            ["color", "Text color", "color", "#ffffff", "foreground"],
+            [
+              "fontFamily",
+              "Font family",
+              "select",
+              "system-ui, sans-serif",
+              [
+                "system-ui, sans-serif",
+                "Arial, sans-serif",
+                "Georgia, serif",
+                "monospace",
+              ],
+            ],
+            ["fontSize", "Font size (px)", "number", 16, 8, 100],
+            [
+              "fontWeight",
+              "Font weight",
+              "select",
+              "600",
+              ["400", "500", "600", "700", "800"],
+            ],
+            ["letterSpacing", "Letter spacing (px)", "number", 0, -3, 20],
+          ],
+        ],
+        [
+          "Spacing & size",
+          [
+            ["paddingY", "Padding vertical (px)", "number", 14, 0, 120],
+            ["paddingX", "Padding horizontal (px)", "number", 26, 0, 200],
+            ["width", "Width (px; 0 = auto)", "number", 0, 0, 1200],
+            ["height", "Height (px; 0 = auto)", "number", 0, 0, 600],
+            ["order", "CSS order", "number", 0, -100, 100],
+          ],
+        ],
+        [
+          "Border",
+          [
+            ["borderWidth", "Border width (px)", "number", 0, 0, 30],
+            [
+              "borderStyle",
+              "Border style",
+              "select",
+              "solid",
+              ["solid", "dashed", "dotted", "double", "none"],
+            ],
+            ["borderColor", "Border color", "color", "#7055dc", "outline"],
+            ["borderRadius", "Corner radius (px)", "number", 10, 0, 200],
+          ],
+        ],
+        [
+          "Shadow & effects",
+          [
+            ["shadow", "Enable shadow", "checkbox", true, "box shadow"],
+            ["shadowX", "Shadow X (px)", "number", 0, -100, 100],
+            ["shadowY", "Shadow Y (px)", "number", 6, -100, 100],
+            ["shadowBlur", "Shadow blur (px)", "number", 16, 0, 100],
+            ["shadowSpread", "Shadow spread (px)", "number", 0, -50, 50],
+            ["shadowColor", "Shadow color", "color", "#7055dc", "box shadow"],
+            ["shadowOpacity", "Shadow opacity (%)", "number", 22, 0, 100],
+            ["opacity", "Button opacity (%)", "number", 100, 0, 100],
+          ],
+        ],
+      ];
+      const fields = groups.flatMap((g) => g[1]);
+      const defaults = Object.fromEntries(fields.map((f) => [f[0], f[3]]));
+      let state = { ...defaults };
+      try {
+        const saved = JSON.parse(localStorage.getItem("button-studio-v1"));
+        if (saved && typeof saved === "object")
+          for (const f of fields) {
+            let v = saved[f[0]];
+            if (f[2] === "checkbox" && typeof v === "boolean") state[f[0]] = v;
+            else if (
+              f[2] === "number" &&
+              typeof v === "number" &&
+              Number.isFinite(v)
+            )
+              state[f[0]] = Math.max(f[4], Math.min(f[5], v));
+            else if (f[2] === "color" && /^#[0-9a-f]{6}$/i.test(v))
+              state[f[0]] = v;
+            else if (f[2] === "select" && f[4].includes(v)) state[f[0]] = v;
+            else if (f[2] === "text" && typeof v === "string")
+              state[f[0]] = v.slice(0, 1000);
+          }
+      } catch {}
+      const $ = (id) => document.getElementById(id);
+      let statusTimer;
+      function notify(text) {
+        $("status").textContent = text;
+        clearTimeout(statusTimer);
+        statusTimer = setTimeout(() => ($("status").textContent = ""), 5000);
+      }
+      for (const [name, items] of groups) {
+        const section = document.createElement("section");
+        section.className = "section";
+        const h = document.createElement("h2");
+        h.textContent = name;
+        section.append(h);
+        for (const f of items) {
+          const [key, label, type] = f;
+          const row = document.createElement("div");
+          row.className = "field";
+          row.dataset.search = (
+            name +
+            " " +
+            label +
+            " " +
+            key +
+            " " +
+            (typeof f[4] === "string" ? f[4] : "")
+          ).toLowerCase();
+          const lab = document.createElement("label");
+          lab.htmlFor = "f-" + key;
+          lab.textContent = label;
+          const input = document.createElement(
+            type === "select" ? "select" : "input",
+          );
+          input.id = "f-" + key;
+          if (type === "select") {
+            for (const value of f[4]) {
+              const o = document.createElement("option");
+              o.value = value;
+              o.textContent = value;
+              input.append(o);
+            }
+          } else input.type = type;
+          if (type === "number") {
+            input.min = f[4];
+            input.max = f[5];
+            input.step = key === "letterSpacing" ? ".1" : "1";
+          }
+          if (type === "text") input.maxLength = 1000;
+          if (type === "checkbox") input.checked = state[key];
+          else input.value = state[key];
+          input.addEventListener("input", () => {
+            if (type === "number") {
+              if (input.value === "" || !Number.isFinite(input.valueAsNumber))
+                return;
+              state[key] = Math.min(f[5], Math.max(f[4], input.valueAsNumber));
+            } else
+              state[key] = type === "checkbox" ? input.checked : input.value;
+            render();
+          });
+          input.addEventListener("change", () => {
+            if (type === "number") input.value = state[key];
+          });
+          row.append(lab, input);
+          section.append(row);
+        }
+        $("controls").append(section);
+      }
+      function styleValues() {
+        const s = state;
+        const c = s.shadowColor;
+        const rgb = [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+        return {
+          appearance: "none",
+          boxSizing: "border-box",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          whiteSpace: "pre-wrap",
+          overflowWrap: "anywhere",
+          verticalAlign: "middle",
+          margin: "0",
+          backgroundColor: s.background,
+          color: s.color,
+          fontFamily: s.fontFamily,
+          fontSize: s.fontSize + "px",
+          fontWeight: s.fontWeight,
+          lineHeight: "1.4",
+          letterSpacing: s.letterSpacing + "px",
+          padding: s.paddingY + "px " + s.paddingX + "px",
+          width: s.width ? s.width + "px" : "auto",
+          height: s.height ? s.height + "px" : "auto",
+          order: String(s.order),
+          border: s.borderWidth + "px " + s.borderStyle + " " + s.borderColor,
+          borderRadius: s.borderRadius + "px",
+          boxShadow: s.shadow
+            ? `${s.shadowX}px ${s.shadowY}px ${s.shadowBlur}px ${s.shadowSpread}px rgba(${rgb.join(", ")}, ${s.shadowOpacity / 100})`
+            : "none",
+          opacity: String(s.opacity / 100),
+          cursor: s.disabled ? "not-allowed" : "pointer",
+        };
+      }
+      function makeButton() {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = state.text;
+        b.disabled = state.disabled;
+        if (state.title) b.title = state.title;
+        Object.assign(b.style, styleValues());
+        return b;
+      }
+      function render() {
+        const b = $("preview");
+        b.textContent = state.text;
+        b.title = state.title;
+        b.disabled = state.disabled;
+        b.removeAttribute("style");
+        Object.assign(b.style, styleValues());
+        $("output").value = makeButton().outerHTML;
+        try {
+          localStorage.setItem("button-studio-v1", JSON.stringify(state));
+        } catch {}
+      }
+      function payload() {
+        return {
+          version: 1,
+          type: "button",
+          text: state.text,
+          title: state.title,
+          disabled: state.disabled,
+          style: styleValues(),
+        };
+      }
+      for (const id of ["preview", "handle"]) {
+        $(id).addEventListener("dragstart", (e) => {
+          const dt = e.dataTransfer;
+          dt.effectAllowed = "copy";
+          dt.setData("text/html", makeButton().outerHTML);
+          dt.setData("text/plain", makeButton().outerHTML);
+          dt.setData(MIME, JSON.stringify(payload()));
+          notify("Drag to an HTML-aware editor or your app’s drop target.");
+        });
+      }
+      $("search").addEventListener("input", () => {
+        const terms = $("search").value.toLowerCase().trim().split(/\s+/);
+        let count = 0;
+        for (const section of document.querySelectorAll(".section")) {
+          let visible = 0;
+          for (const row of section.querySelectorAll(".field")) {
+            row.hidden = !terms.every((t) => row.dataset.search.includes(t));
+            if (!row.hidden) visible++;
+          }
+          section.hidden = !visible;
+          count += visible;
+        }
+        $("empty").hidden = count > 0;
+      });
+      $("surface").addEventListener("change", () => {
+        $("stage").className = "stage " + $("surface").value;
+      });
+      $("reset").addEventListener("click", () => {
+        state = { ...defaults };
+        for (const f of fields) {
+          const input = $("f-" + f[0]);
+          if (f[2] === "checkbox") input.checked = state[f[0]];
+          else input.value = state[f[0]];
+        }
+        render();
+        notify("Defaults restored.");
+      });
+      async function copy(text) {
+        try {
+          if (!navigator.clipboard) throw Error();
+          await navigator.clipboard.writeText(text);
+          notify("Copied to clipboard.");
+        } catch {
+          const t = document.createElement("textarea");
+          t.value = text;
+          t.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+          document.body.append(t);
+          t.select();
+          let ok = false;
+          try {
+            ok = document.execCommand("copy");
+          } catch {}
+          t.remove();
+          notify(
+            ok
+              ? "Copied to clipboard."
+              : "Select the code and press Ctrl+C / ⌘C to copy.",
+          );
+        }
+      }
+      $("copy").addEventListener("click", () => copy($("output").value));
+      $("copyIntegration").addEventListener("click", () =>
+        copy($("integration").value),
+      );
+      $("download").addEventListener("click", () => {
+        const html =
+          '\x3c!doctype html>\n\x3chtml lang="en">\x3cmeta charset="utf-8">\x3cmeta name="viewport" content="width=device-width,initial-scale=1">\x3ctitle>Custom button\x3c/title>\x3cbody>\n' +
+          makeButton().outerHTML +
+          "\n\x3c/body>\x3c/html>";
+        const url = URL.createObjectURL(
+          new Blob([html], { type: "text/html" }),
+        );
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "custom-button.html";
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      });
+      // This receiver deliberately creates only a button: it never inserts arbitrary dropped HTML.
+      const allowedStyleKeys = Object.keys(styleValues());
+      function readButton(raw) {
+        const p = JSON.parse(raw);
+        if (
+          p.version !== 1 ||
+          p.type !== "button" ||
+          typeof p.text !== "string" ||
+          !p.style ||
+          typeof p.style !== "object"
+        )
+          throw Error("Invalid button");
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = p.text.slice(0, 1000);
+        b.title = typeof p.title === "string" ? p.title.slice(0, 1000) : "";
+        b.disabled = p.disabled === true;
+        for (const key of allowedStyleKeys)
+          if (typeof p.style[key] === "string" && p.style[key].length < 300)
+            b.style[key] = p.style[key];
+        return b;
+      }
+      const zone = $("drop");
+      zone.addEventListener("dragover", (e) => {
+        if (Array.from(e.dataTransfer.types).includes(MIME)) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "copy";
+          zone.classList.add("over");
+        }
+      });
+      zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+      zone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        zone.classList.remove("over");
+        try {
+          const b = readButton(e.dataTransfer.getData(MIME));
+          zone.replaceChildren(b);
+          notify("Dropped successfully. The exported button keeps its styles.");
+        } catch {
+          notify("Drag the button from the preview or drag handle.");
+        }
+      });
+      $("clear").addEventListener(
+        "click",
+        () => (zone.textContent = "Drop your button here"),
+      );
+      $("integration").value =
+        `// Run after your drop container exists.\nconst target = document.querySelector('#drop-target');\nconst mime = '${MIME}';\nconst allowedStyleKeys = ${JSON.stringify(allowedStyleKeys)};\n${readButton.toString()}\ntarget.addEventListener('dragover', event => {\n  if (Array.from(event.dataTransfer.types).includes(mime)) {\n    event.preventDefault();\n    event.dataTransfer.dropEffect = 'copy';\n  }\n});\ntarget.addEventListener('drop', event => {\n  const raw = event.dataTransfer.getData(mime);\n  if (!raw) return;\n  event.preventDefault();\n  try { target.append(readButton(raw)); }\n  catch (error) { console.error('Invalid button drop', error); }\n});`;
+      render();
+    </script>
+  </body>
+</html>
